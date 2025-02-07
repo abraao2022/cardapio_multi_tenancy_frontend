@@ -1,0 +1,4 @@
+User-agent: *
+Disallow:
+
+Sitemap: https://vovogussi.com.br/sitemap.xml
