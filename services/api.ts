@@ -1,7 +1,19 @@
 import axios from 'axios';
 
+const getApiBaseUrl = () => {
+    const host = typeof window !== 'undefined' ? window.location.hostname : '';
+    const subdomain = host.split('.')[0];
+
+    if (subdomain) {
+        return `https://${subdomain}.api.facilmenu.com`;
+    }
+
+    // Fallback para a URL padrão caso não consiga identificar o subdomínio
+    return process.env.NEXT_PUBLIC_API_BASE_URL || 'https://default.api.facilmenu.com';
+};
+
 const api = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
+    baseURL: getApiBaseUrl(),
     headers: {
         'Content-Type': 'application/json',
         Accept: 'application/json'
