@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const getApiBaseUrl = () => {
-    if (typeof window === 'undefined') return process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.menufacil.com/api';
+    if (typeof window === 'undefined') return process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.facilmenu.com/api';
 
     const host = window.location.hostname;
     const parts = host.split('.');
@@ -11,11 +11,11 @@ const getApiBaseUrl = () => {
 
     if (isSubdomain) {
         const subdomain = parts[0];
-        return `https://${subdomain}.api.menufacil.com/api`;
+        return `https://${subdomain}.api.facilmenu.com/api`;
     }
 
     // Domínio sem subdomínio
-    return 'https://api.menufacil.com/api';
+    return 'https://api.facilmenu.com/api';
 };
 
 const api = axios.create({
