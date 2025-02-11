@@ -2,6 +2,7 @@ import axios from 'axios';
 
 const getApiBaseUrl = () => {
     const host = typeof window !== 'undefined' ? window.location.hostname : '';
+
     const subdomain = host.split('.')[0];
 
     if (subdomain) {
