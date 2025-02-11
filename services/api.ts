@@ -1,16 +1,21 @@
 import axios from 'axios';
 
 const getApiBaseUrl = () => {
-    const host = typeof window !== 'undefined' ? window.location.hostname : '';
+    if (typeof window === 'undefined') return process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.menufacil.com/api';
 
-    const subdomain = host.split('.')[0];
+    const host = window.location.hostname;
+    const parts = host.split('.');
 
-    if (subdomain) {
+    // Se houver pelo menos três partes e não for "www", assume que há um subdomínio
+    const isSubdomain = parts.length > 2 && parts[0] !== 'www';
+
+    if (isSubdomain) {
+        const subdomain = parts[0];
         return `https://${subdomain}.api.menufacil.com/api`;
     }
 
-    // Fallback para a URL padrão caso não consiga identificar o subdomínio
-    return process.env.NEXT_PUBLIC_API_BASE_URL || 'https://default.api.menufacil.com/api';
+    // Domínio sem subdomínio
+    return 'https://api.menufacil.com/api';
 };
 
 const api = axios.create({
@@ -22,7 +27,7 @@ const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
-    const token = localStorage.getItem('token');
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
     if (token) {
         config.headers.Authorization = `Bearer ${token}`;
     }
