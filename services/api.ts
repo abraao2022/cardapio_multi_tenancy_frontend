@@ -6,11 +6,11 @@ const getApiBaseUrl = () => {
     const subdomain = host.split('.')[0];
 
     if (subdomain) {
-        return `https://${subdomain}.api.facilmenu.com/api`;
+        return `https://${subdomain}.api.menufacil.com/api`;
     }
 
     // Fallback para a URL padrão caso não consiga identificar o subdomínio
-    return process.env.NEXT_PUBLIC_API_BASE_URL || 'https://default.api.facilmenu.com/api';
+    return process.env.NEXT_PUBLIC_API_BASE_URL || 'https://default.api.menufacil.com/api';
 };
 
 const api = axios.create({
