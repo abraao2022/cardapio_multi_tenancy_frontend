@@ -23,13 +23,12 @@ import * as Yup from 'yup';
 import { forwardRef } from 'react';
 import { InputMask, type InputMaskProps } from '@react-input/mask';
 
-import { CardElement } from '@stripe/react-stripe-js';
 import paymentService from '../../../services/paymentService';
-
+/* eslint-disable */
 const ForwardedInputMask = forwardRef<HTMLInputElement, InputMaskProps & { mask: string }>(({ mask, ...props }, forwardedRef) => {
     return <InputMask ref={forwardedRef} mask={mask} replacement="_" {...props} />;
 });
-
+/* eslint-enable */
 const StyledPaper = styled(Paper)(({ theme }) => ({
     padding: theme.spacing(3),
     marginTop: theme.spacing(3),
@@ -145,12 +144,11 @@ const Checkout = () => {
                     validationSchema={validationSchema}
                     onSubmit={async (values) => {
                         // Função para processar o pagamento com Stripe
-                        let response = await paymentService.createCheckout(values);
-                        console.log('response', response);
+                        const response = await paymentService.createCheckout(values);
                         window.location.href = response.url;
                     }}
                 >
-                    {({ values, setFieldValue, handleSubmit, errors, touched }) => (
+                    {({ setFieldValue, handleSubmit, errors, touched }) => (
                         <Form onSubmit={handleSubmit}>
                             <Grid container spacing={3}>
                                 <Grid item xs={12} md={8}>

@@ -1,6 +1,4 @@
-import { useState } from 'react';
 import {
-    AppBar,
     Box,
     Button,
     Card,
@@ -12,9 +10,7 @@ import {
     ListItemIcon,
     ListItemText,
     Stack,
-    Toolbar,
-    Typography,
-    useTheme
+    Typography
 } from '@mui/material';
 import { Smartphone, BarChart, AccessTime as Clock, RestaurantMenu as ChefHat, Check, ArrowForward } from '@mui/icons-material';
 
@@ -91,8 +87,6 @@ const pricing = [
 ];
 
 const LandingPage = () => {
-    const theme = useTheme();
-
     return (
         <Box
             sx={{

@@ -1,7 +1,7 @@
 import api from './api';
 
 const paymentService = {
-    async createCheckout(data) {
+    async createCheckout(data: object) {
         try {
             const response = await api.post('criar-checkout', data);
             return response.data;
