@@ -1,15 +1,16 @@
+'use client';
 import { SuccessCheck } from '../components/SuccessCheck';
 import { CopyButton } from '../components/CopyButton';
 import '../App.css';
 import { AppBar, Toolbar } from '@mui/material';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useSearchParams } from 'next/navigation';
 
 const SuccessPage = () => {
-    // In a real app, these would come from your registration/payment flow
-    const subdomain = 'comidaboa';
-    const email = 'exemplo@email.com';
-    const url = `${subdomain}.facilmenu.com/login`;
+    const searchParams = useSearchParams();
+    const email = searchParams.get('email');
+    const url = searchParams.get('domain') || `https://seusubdominio.facilmenu.com`;
 
     return (
         <>
@@ -24,7 +25,7 @@ const SuccessPage = () => {
                 <div className="card">
                     <SuccessCheck />
 
-                    <div>
+                    <div style={{ textAlign: 'center' }}>
                         <h1 className="title">Compra Realizada com Sucesso!</h1>
                         <p className="subtitle">Parabéns! Seu sistema está pronto para uso.</p>
                     </div>
