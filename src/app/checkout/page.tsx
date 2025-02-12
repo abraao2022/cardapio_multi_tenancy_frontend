@@ -134,8 +134,16 @@ const Checkout = () => {
                     }}
                     validationSchema={validationSchema}
                     onSubmit={async (values) => {
-                        const tenant = await tenantService.createTenant(values);
-                        const response = await paymentService.createCheckout({values, tenant});
+                        const newValues = {
+                            name: values.name,
+                            domain: values.domain + '.api.facilmenu.com',
+                            email: values.email,
+                            telefone: values.telefone,
+                            password: values.password,
+                            plan: currentPlan
+                        }
+                        const tenant = await tenantService.createTenant(newValues);
+                        const response = await paymentService.createCheckout({newValues, tenant});
                         window.location.href = response.url;
                     }}
                 >
