@@ -1,18 +1,6 @@
 'use client';
 import React, { useState } from 'react';
-import {
-    Box,
-    Container,
-    Paper,
-    Typography,
-    Grid,
-    TextField,
-    Button,
-    Divider,
-    AppBar,
-    Toolbar,
-    InputAdornment
-} from '@mui/material';
+import { Box, Container, Paper, Typography, Grid, TextField, Button, Divider, AppBar, Toolbar, InputAdornment } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import Image from 'next/image';
 import { Formik, Field, Form } from 'formik';
@@ -22,6 +10,10 @@ import { InputMask, type InputMaskProps } from '@react-input/mask';
 
 import paymentService from '../../../services/paymentService';
 import tenantService from '../../../services/tenantService';
+import Link from 'next/link';
+
+import { useSearchParams } from 'next/navigation';
+
 /* eslint-disable */
 const ForwardedInputMask = forwardRef<HTMLInputElement, InputMaskProps & { mask: string }>(({ mask, ...props }, forwardedRef) => {
     return <InputMask ref={forwardedRef} mask={mask} replacement="_" {...props} />;
@@ -54,19 +46,22 @@ const plans = [
         id: 1,
         name: 'Mensal',
         label: 'mês',
-        price: 49.9
+        price: 49.9,
+        labelPrice: 'R$ 49,90'
     },
     {
         id: 2,
         name: 'Semenstral',
         label: 'semestre',
-        price: 99.9
+        price: 99.9,
+        labelPrice: 'R$ 99,90'
     },
     {
         id: 3,
         name: 'Anual',
         label: 'ano',
-        price: 199.9
+        price: 199.9,
+        labelPrice: 'R$ 199,90'
     }
 ];
 
@@ -85,7 +80,8 @@ const validationSchema = Yup.object({
 });
 
 const Checkout = () => {
-    const [selectedPlan, setSelectedPlan] = useState(1);
+    const searchParams = useSearchParams();
+    const [selectedPlan, setSelectedPlan] = useState(parseInt(searchParams.get('plan') || '1'));
 
     const currentPlan = plans.find((plan) => plan.id === selectedPlan);
 
@@ -93,7 +89,9 @@ const Checkout = () => {
         <Box>
             <AppBar position="static" sx={{ bgcolor: 'white', boxShadow: 1 }}>
                 <Toolbar>
-                    <Image src="/img/logo.png" alt="Logo" width={100} height={100} />
+                    <Link href="/" passHref>
+                        <Image src="/img/logo.png" alt="Logo" width={100} height={100} />
+                    </Link>
                 </Toolbar>
             </AppBar>
 
@@ -114,7 +112,7 @@ const Checkout = () => {
                                     {plan.name}
                                 </Typography>
                                 <Typography variant="h4" color="primary" gutterBottom>
-                                    R$ {plan.price.toFixed(2)}
+                                    {plan.labelPrice}
                                 </Typography>
                                 <Typography variant="subtitle2" color="text.secondary" gutterBottom>
                                     Por {plan.label}
@@ -141,9 +139,9 @@ const Checkout = () => {
                             telefone: values.telefone,
                             password: values.password,
                             plan: currentPlan
-                        }
+                        };
                         const tenant = await tenantService.createTenant(newValues);
-                        const response = await paymentService.createCheckout({newValues, tenant});
+                        const response = await paymentService.createCheckout({ newValues, tenant });
                         window.location.href = response.url;
                     }}
                 >
@@ -181,7 +179,7 @@ const Checkout = () => {
                                                     helperText={touched.domain && errors.domain}
                                                 />
                                                 <p style={{ fontSize: '12px', color: 'gray' }}>
-                                                    Será o endereço do seu negócio na internet. Por exemplo: <strong>comidaboa.</strong>
+                                                    Será o endereço do seu negócio na internet. Por exemplo: <strong>comidaboa | </strong>
                                                     No fim, ficará:<strong> comidaboa.facilmenu.com</strong>
                                                 </p>
                                             </Grid>
@@ -241,16 +239,16 @@ const Checkout = () => {
                                         <Divider />
                                         <Box sx={{ mt: 2 }}>
                                             <Typography variant="subtitle1">
-                                                Total mensal:{' '}
+                                                Total {currentPlan?.label}:{' '}
                                                 <Typography component="span" variant="h6">
-                                                    R$ {currentPlan?.price.toFixed(2)}
+                                                    {currentPlan?.labelPrice}
                                                 </Typography>
                                             </Typography>
                                         </Box>
                                     </StyledPaper>
 
                                     <Box sx={{ mt: 2 }}>
-                                        <Button variant="contained" type="submit" fullWidth>
+                                        <Button variant="contained" type="submit" fullWidth sx={{ height: 50 }}>
                                             Confirmar Assinatura
                                         </Button>
                                     </Box>

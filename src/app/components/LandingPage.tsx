@@ -13,6 +13,7 @@ import {
     Typography
 } from '@mui/material';
 import { Smartphone, BarChart, AccessTime as Clock, RestaurantMenu as ChefHat, Check, ArrowForward } from '@mui/icons-material';
+import Image from 'next/image';
 
 const features = [
     {
@@ -125,8 +126,7 @@ const LandingPage = () => {
                             bgcolor: '#8803FC',
                             px: 2,
                             py: 0.5,
-                            borderRadius: 50,
-                            mb: 4
+                            borderRadius: 50
                         }}
                     >
                         Modernize seu restaurante
@@ -142,8 +142,11 @@ const LandingPage = () => {
                             WebkitTextFillColor: 'transparent'
                         }}
                     >
-                        Cardápio Digital Inteligente
+                        Fácil Menu - Cardápio Digital Inteligente
                     </Typography>
+                    <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+                        <Image src="/img/logo.png" alt="Logo" width={300} height={300} />
+                    </div>
                     <Typography variant="h5" color="text.secondary" sx={{ mb: 4, maxWidth: '800px', mx: 'auto' }}>
                         Transforme a experiência dos seus clientes com um cardápio digital moderno e intuitivo. Gerencie pedidos e métricas
                         em tempo real.
@@ -284,7 +287,13 @@ const LandingPage = () => {
                         <Typography variant="h6" color="text.secondary" sx={{ mb: 4 }}>
                             Junte-se a centenas de restaurantes que já estão usando nosso cardápio digital
                         </Typography>
-                        <Button variant="contained" sx={{ bgcolor: '#fff', color: '#7b58ff' }} size="large" endIcon={<ArrowForward />} href="/checkout">
+                        <Button
+                            variant="contained"
+                            sx={{ bgcolor: '#fff', color: '#7b58ff' }}
+                            size="large"
+                            endIcon={<ArrowForward />}
+                            href="/checkout"
+                        >
                             Começar Agora
                         </Button>
                     </Box>
