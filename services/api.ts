@@ -15,7 +15,7 @@ const getApiBaseUrl = () => {
     }
 
     // Domínio sem subdomínio
-    return 'https://api.facilmenu.com/api';
+    return 'http://localhost:8000/api';
 };
 
 const api = axios.create({

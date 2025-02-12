@@ -9,12 +9,9 @@ import {
     TextField,
     Button,
     Divider,
-    Radio,
-    RadioGroup,
-    FormControlLabel,
-    FormControl,
     AppBar,
-    Toolbar
+    Toolbar,
+    InputAdornment
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import Image from 'next/image';
@@ -24,6 +21,7 @@ import { forwardRef } from 'react';
 import { InputMask, type InputMaskProps } from '@react-input/mask';
 
 import paymentService from '../../../services/paymentService';
+import tenantService from '../../../services/tenantService';
 /* eslint-disable */
 const ForwardedInputMask = forwardRef<HTMLInputElement, InputMaskProps & { mask: string }>(({ mask, ...props }, forwardedRef) => {
     return <InputMask ref={forwardedRef} mask={mask} replacement="_" {...props} />;
@@ -74,19 +72,20 @@ const plans = [
 
 // Definir o schema de validação com Yup
 const validationSchema = Yup.object({
-    companyName: Yup.string().required('Nome da empresa é obrigatório'),
+    name: Yup.string().required('Nome da empresa é obrigatório'),
     email: Yup.string().email('Email inválido').required('Email é obrigatório'),
-    cnpj: Yup.string().required('CNPJ é obrigatório'),
-    phone: Yup.string().required('Telefone é obrigatório'),
-    cardName: Yup.string().required('Nome do cartão é obrigatório'),
-    cardNumber: Yup.string().required('Número do cartão é obrigatório'),
-    expDate: Yup.string().required('Data de expiração é obrigatória'),
-    cvv: Yup.string().required('CVV é obrigatório')
+    domain: Yup.string()
+        .required('Subdomínio da empresa é obrigatório')
+        .matches(/^[a-zA-Z0-9-]+$/, 'Subdomínio da empresa deve conter apenas letras e/ou hífens'),
+    telefone: Yup.string().required('Telefone é obrigatório').min(15, 'Telefone inválido'),
+    password: Yup.string()
+        .required('Senha é obrigatória')
+        .min(6, 'A senha deve ter pelo menos 6 caracteres')
+        .max(20, 'A senha deve ter no máximo 20 caracteres')
 });
 
 const Checkout = () => {
-    const [selectedPlan, setSelectedPlan] = useState(1); // Começa com o primeiro plano
-    const [paymentMethod, setPaymentMethod] = useState('credit');
+    const [selectedPlan, setSelectedPlan] = useState(1);
 
     const currentPlan = plans.find((plan) => plan.id === selectedPlan);
 
@@ -125,30 +124,22 @@ const Checkout = () => {
                     ))}
                 </Grid>
 
-                <Typography variant="h4" sx={{ mb: 2 }}>
-                    Finalizar Assinatura
-                </Typography>
-
                 <Formik
                     initialValues={{
-                        companyName: '',
+                        name: '',
+                        domain: '',
                         email: '',
-                        cnpj: '',
-                        phone: '',
-                        cardName: '',
-                        cardNumber: '',
-                        expDate: '',
-                        cvv: '',
-                        paymentMethod: 'credit'
+                        telefone: '',
+                        password: ''
                     }}
                     validationSchema={validationSchema}
                     onSubmit={async (values) => {
-                        // Função para processar o pagamento com Stripe
-                        const response = await paymentService.createCheckout(values);
+                        const tenant = await tenantService.createTenant(values);
+                        const response = await paymentService.createCheckout({values, tenant});
                         window.location.href = response.url;
                     }}
                 >
-                    {({ setFieldValue, handleSubmit, errors, touched }) => (
+                    {({ handleSubmit, errors, touched }) => (
                         <Form onSubmit={handleSubmit}>
                             <Grid container spacing={3}>
                                 <Grid item xs={12} md={8}>
@@ -160,19 +151,52 @@ const Checkout = () => {
                                             <Grid item xs={12}>
                                                 <Field
                                                     as={TextField}
-                                                    name="companyName"
+                                                    name="name"
                                                     label="Nome da empresa"
                                                     fullWidth
                                                     variant="outlined"
-                                                    error={touched.companyName && Boolean(errors.companyName)}
-                                                    helperText={touched.companyName && errors.companyName}
+                                                    error={touched.name && Boolean(errors.name)}
+                                                    helperText={touched.name && errors.name}
+                                                />
+                                            </Grid>
+                                            <Grid item xs={12}>
+                                                <Field
+                                                    as={TextField}
+                                                    name="domain"
+                                                    label="Subdomínio da empresa. Ex.: comidaboa"
+                                                    fullWidth
+                                                    variant="outlined"
+                                                    InputProps={{
+                                                        endAdornment: <InputAdornment position="end">.facilmenu.com</InputAdornment>
+                                                    }}
+                                                    error={touched.domain && Boolean(errors.domain)}
+                                                    helperText={touched.domain && errors.domain}
+                                                />
+                                                <p style={{ fontSize: '12px', color: 'gray' }}>
+                                                    Será o endereço do seu negócio na internet. Por exemplo: <strong>comidaboa.</strong>
+                                                    No fim, ficará:<strong> comidaboa.facilmenu.com</strong>
+                                                </p>
+                                            </Grid>
+                                            <Grid item xs={12}>
+                                                <Field
+                                                    as={TextField}
+                                                    name="telefone"
+                                                    label="Telefone"
+                                                    fullWidth
+                                                    variant="outlined"
+                                                    error={touched.telefone && Boolean(errors.telefone)}
+                                                    helperText={touched.telefone && errors.telefone}
+                                                    InputProps={{
+                                                        inputComponent: ForwardedInputMask,
+                                                        inputProps: { mask: '(__) _____-____' }
+                                                    }}
                                                 />
                                             </Grid>
                                             <Grid item xs={12}>
                                                 <Field
                                                     as={TextField}
                                                     name="email"
-                                                    label="Email corporativo"
+                                                    label="Email"
                                                     fullWidth
                                                     variant="outlined"
                                                     type="email"
@@ -183,113 +207,16 @@ const Checkout = () => {
                                             <Grid item xs={12}>
                                                 <Field
                                                     as={TextField}
-                                                    name="cnpj"
-                                                    label="CNPJ"
+                                                    name="password"
+                                                    label="Senha"
                                                     fullWidth
                                                     variant="outlined"
-                                                    error={touched.cnpj && Boolean(errors.cnpj)}
-                                                    helperText={touched.cnpj && errors.cnpj}
-                                                    InputProps={{
-                                                        inputComponent: ForwardedInputMask,
-                                                        inputProps: { mask: '__.___.___/____-__' }
-                                                    }}
-                                                />
-                                            </Grid>
-                                            <Grid item xs={12}>
-                                                <Field
-                                                    as={TextField}
-                                                    name="phone"
-                                                    label="Telefone"
-                                                    fullWidth
-                                                    variant="outlined"
-                                                    error={touched.phone && Boolean(errors.phone)}
-                                                    helperText={touched.phone && errors.phone}
-                                                    InputProps={{
-                                                        inputComponent: ForwardedInputMask,
-                                                        inputProps: { mask: '(__) ____-____' }
-                                                    }}
+                                                    type="password"
+                                                    error={touched.password && Boolean(errors.password)}
+                                                    helperText={touched.password && errors.password}
                                                 />
                                             </Grid>
                                         </Grid>
-                                    </StyledPaper>
-
-                                    <StyledPaper>
-                                        <Typography variant="h6" gutterBottom>
-                                            Forma de Pagamento
-                                        </Typography>
-                                        <FormControl component="fieldset">
-                                            <RadioGroup
-                                                value={paymentMethod}
-                                                onChange={(e) => {
-                                                    setFieldValue('paymentMethod', e.target.value);
-                                                    setPaymentMethod(e.target.value);
-                                                }}
-                                            >
-                                                <FormControlLabel value="credit" control={<Radio />} label="Cartão de Crédito" />
-                                                <FormControlLabel value="pix" control={<Radio />} label="PIX" />
-                                            </RadioGroup>
-                                        </FormControl>
-
-                                        {paymentMethod === 'credit' && (
-                                            <Grid container spacing={3} sx={{ mt: 1 }}>
-                                                <Grid item xs={12}>
-                                                    <Field
-                                                        as={TextField}
-                                                        name="cardName"
-                                                        label="Nome no cartão"
-                                                        fullWidth
-                                                        variant="outlined"
-                                                        error={touched.cardName && Boolean(errors.cardName)}
-                                                        helperText={touched.cardName && errors.cardName}
-                                                    />
-                                                </Grid>
-                                                <Grid item xs={12}>
-                                                    <Field
-                                                        as={TextField}
-                                                        name="cardNumber"
-                                                        label="Número do cartão"
-                                                        fullWidth
-                                                        variant="outlined"
-                                                        error={touched.cardNumber && Boolean(errors.cardNumber)}
-                                                        helperText={touched.cardNumber && errors.cardNumber}
-                                                        InputProps={{
-                                                            inputComponent: ForwardedInputMask,
-                                                            inputProps: { mask: '____ ____ ____ ____' }
-                                                        }}
-                                                    />
-                                                </Grid>
-                                                <Grid item xs={12} sm={6}>
-                                                    <Field
-                                                        as={TextField}
-                                                        name="expDate"
-                                                        label="Data de validade"
-                                                        fullWidth
-                                                        variant="outlined"
-                                                        error={touched.expDate && Boolean(errors.expDate)}
-                                                        helperText={touched.expDate && errors.expDate}
-                                                        InputProps={{
-                                                            inputComponent: ForwardedInputMask,
-                                                            inputProps: { mask: '__/____' }
-                                                        }}
-                                                    />
-                                                </Grid>
-                                                <Grid item xs={12} sm={6}>
-                                                    <Field
-                                                        as={TextField}
-                                                        name="cvv"
-                                                        label="CVV"
-                                                        fullWidth
-                                                        variant="outlined"
-                                                        error={touched.cvv && Boolean(errors.cvv)}
-                                                        helperText={touched.cvv && errors.cvv}
-                                                        InputProps={{
-                                                            inputComponent: ForwardedInputMask,
-                                                            inputProps: { mask: '___' }
-                                                        }}
-                                                    />
-                                                </Grid>
-                                            </Grid>
-                                        )}
                                     </StyledPaper>
                                 </Grid>
 
